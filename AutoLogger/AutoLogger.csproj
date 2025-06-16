@@ -4,7 +4,24 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Roman Molchanov</Authors>
+    <Description>Wraps services by proxy and logs start with parameters and finish of methods with result and duration.
+Works on Scrutor.</Description>
+    <PackageTags>AutoLogger;Logger;Scrutor;Proxy;DI;IServiceCollection</PackageTags>
+    <RepositoryUrl>https://github.com/RomanMolchanov/AutoLogger</RepositoryUrl>
+    <PackageId>rmolchanov.$(AssemblyName)</PackageId>
+    <PackageProjectUrl>https://github.com/RomanMolchanov/AutoLogger</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) Roman Molchanov 2025.</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
