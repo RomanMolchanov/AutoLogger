@@ -14,10 +14,10 @@ public static class AutoLoggerDecorationStrategyExtensions
         Use attribute AutoLogger for specific services;
         Call AddAutoLogger() after registration services.
         """;
-    public static IServiceCollection AddAutoLogger(this IServiceCollection services, Predicate<ServiceDescriptor>? resolver = null)
+    public static IServiceCollection AddAutoLogger(this IServiceCollection services, AutoLoggerSettings? settings = null)
     {
         bool? Check(Type? type) => type?.Assembly.GetCustomAttribute<AutoLoggerAttribute>()?.Allow;
-        resolver ??= sd => (Check(sd.GetInstanceType()) ?? Check(sd.ServiceType)) == true;
+        var resolver = settings?.Resolver ?? (sd => (Check(sd.GetInstanceType()) ?? Check(sd.ServiceType)) == true);
         try
         {
             services.Decorate(new AutoLoggerDecorationStrategy(resolver));

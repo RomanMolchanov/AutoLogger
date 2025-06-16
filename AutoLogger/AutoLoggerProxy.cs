@@ -7,9 +7,9 @@ namespace AutoLogger;
 internal class AutoLoggerProxy : DispatchProxy
 {
     private object _inner = default!;
-    private Func<MethodInfo, Type, Settings> _settingsProvider = default!;
+    private Func<MethodInfo, Type, ProxyInfo> _settingsProvider = default!;
 
-    public DispatchProxy Init(object inner, Func<MethodInfo, Type, Settings> settingsProvider)
+    public DispatchProxy Init(object inner, Func<MethodInfo, Type, ProxyInfo> settingsProvider)
     {
         _inner = inner;
         _settingsProvider = settingsProvider;
@@ -52,7 +52,7 @@ internal class AutoLoggerProxy : DispatchProxy
         }
     }
 
-    private static void TaskProcess(Task task, MethodInfo targetMethod, Stopwatch stopwatch, Settings settings)
+    private static void TaskProcess(Task task, MethodInfo targetMethod, Stopwatch stopwatch, ProxyInfo settings)
     {
         var x =
         task.ContinueWith(x =>
@@ -66,7 +66,7 @@ internal class AutoLoggerProxy : DispatchProxy
         }, TaskContinuationOptions.ExecuteSynchronously);
     }
 
-    private static void LogResult(string method, Type returnType, object? result, Exception? exception, TimeSpan elapsed, Settings settings, LogLevel logLevel)
+    private static void LogResult(string method, Type returnType, object? result, Exception? exception, TimeSpan elapsed, ProxyInfo settings, LogLevel logLevel)
     {
         settings.Logger.Log(logLevel,
             exception,

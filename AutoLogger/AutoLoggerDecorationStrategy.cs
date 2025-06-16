@@ -9,7 +9,7 @@ namespace AutoLogger;
 internal class AutoLoggerDecorationStrategy(Predicate<ServiceDescriptor> resolver) : DecorationStrategy(typeof(AutoLoggerDecorationStrategy), null)
 {
     private ILogger<AutoLoggerDecorationStrategy>? _logger;
-    private readonly ConcurrentDictionary<(MethodInfo ServiceMethod, Type ObjectType), Settings> _accessCache = new();
+    private readonly ConcurrentDictionary<(MethodInfo ServiceMethod, Type ObjectType), ProxyInfo> _accessCache = new();
     private readonly ConcurrentDictionary<Type, bool> _typeEnableCache = new ConcurrentDictionary<Type, bool>();
 
     public override Func<IServiceProvider, object?, object> CreateDecorator(Type serviceType, string serviceKey)
@@ -48,24 +48,24 @@ internal class AutoLoggerDecorationStrategy(Predicate<ServiceDescriptor> resolve
 
     private bool? GetPropertyAccess(ParameterInfo parameterInfo) => parameterInfo.GetCustomAttribute<AutoLoggerAttribute>()?.Allow;
 
-    private Func<MethodInfo, Type, Settings> GetSettingsProvider(IServiceProvider serviceProvider)
+    private Func<MethodInfo, Type, ProxyInfo> GetSettingsProvider(IServiceProvider serviceProvider)
     {
         return (serviceMethod, impl) => _accessCache.GetOrAdd((serviceMethod, impl), key =>
         {
             var objectMethod = key.ObjectType.GetMethod(serviceMethod.Name, serviceMethod.GetParameters().Select(x => x.ParameterType).ToArray())!;
             var access = GetAccess(GetMemberAccess, objectMethod, key.ServiceMethod);
-            var settings = new Settings { Enabled = access != false };
-            if (settings.Enabled)
+            var proxyInfo = new ProxyInfo { Enabled = access != false };
+            if (proxyInfo.Enabled)
             {
                 access = GetAccess(GetPropertyAccess, objectMethod.ReturnParameter, key.ServiceMethod.ReturnParameter);
-                settings.LogResult = access != false;
+                proxyInfo.LogResult = access != false;
 
-                settings.AllowParameters = objectMethod.GetParameters()
+                proxyInfo.AllowParameters = objectMethod.GetParameters()
                     .Zip(key.ServiceMethod.GetParameters(), (x, y) => GetAccess(GetPropertyAccess, x, y) != false)
                     .ToArray();
-                settings.Logger = (ILogger)serviceProvider.GetRequiredService(typeof(ILogger<>).MakeGenericType(impl));
+                proxyInfo.Logger = (ILogger)serviceProvider.GetRequiredService(typeof(ILogger<>).MakeGenericType(impl));
             }
-            return settings;
+            return proxyInfo;
         });
     }
 }

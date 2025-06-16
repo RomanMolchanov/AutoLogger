@@ -2,7 +2,7 @@
 
 namespace AutoLogger;
 
-internal class Settings
+internal class ProxyInfo
 {
     public bool Enabled { get; set; }
     public bool LogResult { get; set; }
